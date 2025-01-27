@@ -54,7 +54,10 @@ class BC(ABC):
 
     def normal_derivative(self, X, inputs, outputs, beg, end):
         dydx = grad.jacobian(outputs, inputs, i=self.component, j=None)[beg:end]
-        n = self.boundary_normal(X, beg, end, None)
+        if backend_name == 'pytorch' and X.requires_grad:
+            n = self.boundary_normal(X.clone().detach().numpy(), beg, end, None)
+        else:
+            n = self.boundary_normal(X, beg, end, None)
         return bkd.sum(dydx * n, 1, keepdims=True)
 
     @abstractmethod

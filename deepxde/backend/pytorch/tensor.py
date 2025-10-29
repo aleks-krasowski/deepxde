@@ -286,3 +286,25 @@ def isclose(x, y):
     return torch.isclose(x, y, atol=atol)
 
 
+def logical_and(x, y):
+    return torch.logical_and(x, y)
+
+
+def logical_or(x, y):
+    return torch.logical_or(x, y)
+
+
+def logical_not(x):
+    return torch.logical_not(x)
+
+
+def logical_xor(x, y):
+    return torch.logical_xor(x, y)
+
+
+def any(input_tensor, axis=None, keepdims=False):
+    return torch.any(input_tensor, dim=axis, keepdim=keepdims)
+
+
+def all(input_tensor, axis=None, keepdims=False):
+    return torch.all(input_tensor, dim=axis, keepdim=keepdims)

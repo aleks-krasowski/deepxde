@@ -566,3 +566,25 @@ def l1_l2_regularization(l1, l2):
         l1 (float): L1 regularization factor.
         l2 (float): L2 regularization factor.
     """
+
+
+###############################################################################
+# Boolean operations
+
+def logical_and(x, y):
+    """Element-wise logical AND operation between two boolean tensors."""
+
+def logical_or(x, y):
+    """Element-wise logical OR operation between two boolean tensors."""
+
+def logical_not(x):
+    """Element-wise logical NOT operation on a boolean tensor."""
+
+def logical_xor(x, y):
+    """Element-wise logical XOR operation between two boolean tensors."""
+
+def any(x, axis=None, keepdims=False):
+    """Returns True if any of the elements along a given axis evaluate to True."""
+
+def all(x, axis=None, keepdims=False):
+    """Returns True if all of the elements along a given axis evaluate to True."""

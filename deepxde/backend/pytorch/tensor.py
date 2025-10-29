@@ -269,3 +269,20 @@ def matmul(x, y):
 
 def sparse_dense_matmul(x, y):
     return torch.sparse.mm(x, y)
+
+
+def is_close(x, y, rtol=1e-05, atol=1e-08):
+    return torch.isclose(x, y, rtol=rtol, atol=atol)
+
+
+def isclose(x, y):
+    a_dtype = x.dtype
+    b_dtype = y.dtype
+    atol = 1e-8
+    if torch.float32 in [a_dtype, b_dtype]:
+        atol = 1e-6
+    if torch.float16 in [a_dtype, b_dtype]:
+        atol = 1e-4
+    return torch.isclose(x, y, atol=atol)
+
+

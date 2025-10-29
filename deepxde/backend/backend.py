@@ -504,6 +504,31 @@ def sparse_dense_matmul(x, y):
     """
 
 
+def is_close(x, y, atol=1e-8, rtol=1e-5):
+    """Element-wise closeness test between two tensors.
+
+    Two elements x and y are considered close if abs(x - y) <= atol.
+
+    Args:
+        x (Tensor). The first tensor to be compared.
+        y (Tensor). The second tensor to be compared.
+        atol (float). The absolute tolerance value.
+
+    Returns:
+        Tensor: A boolean tensor indicating element-wise closeness.
+    """
+
+
+def isclose(x, y):
+    """Element-wise equality test between two tensors. (As above).
+    This implementation matches the same behavior as deepxde.utils.external.isclose.
+
+    Args:
+        x (Tensor). The first tensor to be compared.
+        y (Tensor). The second tensor to be compared."""
+
+
+
 ###############################################################################
 # Regularization
 

@@ -15,10 +15,16 @@ from ..utils import isclose, vectorize
 
 class Disk(Hypersphere):
     def inside(self, x):
-        return np.linalg.norm(x - self.center, axis=-1) <= self.radius
+        if bkd.is_tensor(x):
+            return bkd.norm(x - bkd.as_tensor(self.center, dtype=x.dtype), axis=-1) <= self.radius
+        else:
+            return np.linalg.norm(x - self.center, axis=-1) <= self.radius
 
     def on_boundary(self, x):
-        return isclose(np.linalg.norm(x - self.center, axis=-1), self.radius)
+        if bkd.is_tensor(x):
+            return bkd.isclose(bkd.norm(x - bkd.as_tensor(self.center, dtype=x.dtype), axis=-1), bkd.as_tensor(self.radius, dtype=x.dtype))
+        else:
+            return isclose(np.linalg.norm(x - self.center, axis=-1), self.radius)
 
     def distance2boundary_unitdirn(self, x, dirn):
         # https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
@@ -117,13 +123,22 @@ class Ellipse(Geometry):
         )
 
     def on_boundary(self, x):
-        d1 = np.linalg.norm(x - self.focus1, axis=-1)
-        d2 = np.linalg.norm(x - self.focus2, axis=-1)
-        return isclose(d1 + d2, 2 * self.semimajor)
+        if bkd.is_tensor(x):
+            d1 = bkd.norm(x - bkd.as_tensor(self.focus1, dtype=x.dtype), axis=-1)
+            d2 = bkd.norm(x - bkd.as_tensor(self.focus2, dtype=x.dtype), axis=-1)
+            return bkd.isclose(d1 + d2, 2 * self.semimajor)
+        else:
+            d1 = np.linalg.norm(x - self.focus1, axis=-1)
+            d2 = np.linalg.norm(x - self.focus2, axis=-1)
+            return isclose(d1 + d2, 2 * self.semimajor)
 
     def inside(self, x):
-        d1 = np.linalg.norm(x - self.focus1, axis=-1)
-        d2 = np.linalg.norm(x - self.focus2, axis=-1)
+        if bkd.is_tensor(x):
+            d1 = bkd.norm(x - bkd.as_tensor(self.focus1, dtype=x.dtype), axis=-1)
+            d2 = bkd.norm(x - bkd.as_tensor(self.focus2, dtype=x.dtype), axis=-1)
+        else:
+            d1 = np.linalg.norm(x - self.focus1, axis=-1)
+            d2 = np.linalg.norm(x - self.focus2, axis=-1)
         return d1 + d2 <= 2 * self.semimajor
 
     def _ellipse_arc(self):

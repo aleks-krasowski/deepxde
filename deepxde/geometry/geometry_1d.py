@@ -18,7 +18,12 @@ class Interval(Geometry):
         return np.logical_and(self.l <= x, x <= self.r).flatten()
 
     def on_boundary(self, x):
-        return np.any(isclose(x, [self.l, self.r]), axis=-1)
+        if bkd.is_tensor(x):
+            return bkd.any(
+                bkd.isclose(x, bkd.as_tensor([self.l, self.r], dtype=x.dtype)), axis=-1
+            )
+        else:
+            return np.any(isclose(x, [self.l, self.r]), axis=-1)
 
     def distance2boundary(self, x, dirn):
         return x - self.l if dirn < 0 else self.r - x

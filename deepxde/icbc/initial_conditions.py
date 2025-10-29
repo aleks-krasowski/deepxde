@@ -2,6 +2,8 @@
 
 __all__ = ["IC"]
 
+from functools import partial
+
 import numpy as np
 
 from .boundary_conditions import npfunc_range_autocache
@@ -15,13 +17,22 @@ class IC:
     def __init__(self, geom, func, on_initial, component=0):
         self.geom = geom
         self.func = npfunc_range_autocache(utils.return_tensor(func))
-        self.on_initial = lambda x, on: np.array(
-            [on_initial(x[i], on[i]) for i in range(len(x))]
-        )
+        self.on_initial = partial(self._on_initial, on_initial=on_initial)
         self.component = component
 
     def filter(self, X):
         return X[self.on_initial(X, self.geom.on_initial(X))]
+    
+    def _on_initial(self, X, on, on_initial):
+        if bkd.is_tensor(X):
+            return bkd.as_tensor(
+                [on_initial(X[i], on[i]) for i in range(bkd.shape(X)[0])],
+                dtype=bkd.bool,
+            )
+        else:
+            return np.array(
+                [on_initial(X[i], on[i]) for i in range(len(X))], dtype=bool
+            )
 
     def collocation_points(self, X):
         return self.filter(X)

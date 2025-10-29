@@ -29,16 +29,29 @@ class Hypercube(Geometry):
         self.volume = np.prod(self.side_length)
 
     def inside(self, x):
-        return np.logical_and(
-            np.all(x >= self.xmin, axis=-1), np.all(x <= self.xmax, axis=-1)
-        )
+        if bkd.is_tensor(x):
+            return bkd.logical_and(
+                bkd.all(x >= bkd.as_tensor(self.xmin, dtype=x.dtype), axis=-1),
+                bkd.all(x <= bkd.as_tensor(self.xmax, dtype=x.dtype), axis=-1),
+            )
+        else:
+            return np.logical_and(
+                np.all(x >= self.xmin, axis=-1), np.all(x <= self.xmax, axis=-1)
+            )
 
     def on_boundary(self, x):
-        _on_boundary = np.logical_or(
-            np.any(isclose(x, self.xmin), axis=-1),
-            np.any(isclose(x, self.xmax), axis=-1),
-        )
-        return np.logical_and(self.inside(x), _on_boundary)
+        if bkd.is_tensor(x):
+            _on_boundary = bkd.logical_or(
+                bkd.any(bkd.isclose(x, bkd.as_tensor(self.xmin, dtype=x.dtype)), axis=-1),
+                bkd.any(bkd.isclose(x, bkd.as_tensor(self.xmax, dtype=x.dtype)), axis=-1),
+            )
+            return bkd.logical_and(self.inside(x), _on_boundary)
+        else:
+            _on_boundary = np.logical_or(
+                np.any(isclose(x, self.xmin), axis=-1),
+                np.any(isclose(x, self.xmax), axis=-1),
+            )
+            return np.logical_and(self.inside(x), _on_boundary)
 
     def boundary_normal(self, x):
         _n = -isclose(x, self.xmin).astype(config.real(np)) + isclose(x, self.xmax)
@@ -228,7 +241,13 @@ class Hypersphere(Geometry):
         return np.linalg.norm(x - self.center, axis=-1) <= self.radius
 
     def on_boundary(self, x):
-        return isclose(np.linalg.norm(x - self.center, axis=-1), self.radius)
+        if bkd.is_tensor(x):
+            return bkd.isclose(
+                bkd.norm(x - bkd.as_tensor(self.center, dtype=x.dtype), axis=-1),
+                self.radius,
+            )
+        else:
+            return isclose(np.linalg.norm(x - self.center, axis=-1), self.radius)
 
     def distance2boundary_unitdirn(self, x, dirn):
         # https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection

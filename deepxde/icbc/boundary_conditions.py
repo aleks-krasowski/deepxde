@@ -14,7 +14,7 @@ __all__ = [
 
 import numbers
 from abc import ABC, abstractmethod
-from functools import wraps
+from functools import partial, wraps
 
 import numpy as np
 
@@ -37,9 +37,7 @@ class BC(ABC):
 
     def __init__(self, geom, on_boundary, component):
         self.geom = geom
-        self.on_boundary = lambda x, on: np.array(
-            [on_boundary(x[i], on[i]) for i in range(len(x))]
-        )
+        self.on_boundary = partial(self._on_boundary, on_boundary=on_boundary)
         self.component = component
 
         self.boundary_normal = npfunc_range_autocache(
@@ -48,6 +46,18 @@ class BC(ABC):
 
     def filter(self, X):
         return X[self.on_boundary(X, self.geom.on_boundary(X))]
+    
+    def _on_boundary(self, X, on, on_boundary=None):
+        if bkd.is_tensor(X):
+            return bkd.as_tensor(
+                [on_boundary(X[i], on[i]) for i in range(len(X))],
+                dtype=bkd.bool,
+            )
+        else:
+            return np.array(
+                [on_boundary(X[i], on[i]) for i in range(len(X))], dtype=bool
+            )
+
 
     def collocation_points(self, X):
         return self.filter(X)

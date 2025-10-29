@@ -1,6 +1,7 @@
 import numpy as np
 
 from . import geometry
+from .. import backend as bkd
 from .. import config
 
 
@@ -26,13 +27,22 @@ class CSGUnion(geometry.Geometry):
         self.geom2 = geom2
 
     def inside(self, x):
-        return np.logical_or(self.geom1.inside(x), self.geom2.inside(x))
+        if bkd.is_tensor(x):
+            return bkd.logical_or(self.geom1.inside(x), self.geom2.inside(x))
+        else:
+            return np.logical_or(self.geom1.inside(x), self.geom2.inside(x))
 
     def on_boundary(self, x):
-        return np.logical_or(
-            np.logical_and(self.geom1.on_boundary(x), ~self.geom2.inside(x)),
-            np.logical_and(self.geom2.on_boundary(x), ~self.geom1.inside(x)),
-        )
+        if bkd.is_tensor(x):
+            return bkd.logical_or(
+                bkd.logical_and(self.geom1.on_boundary(x), ~self.geom2.inside(x)),
+                bkd.logical_and(self.geom2.on_boundary(x), ~self.geom1.inside(x)),
+            )
+        else:
+            return np.logical_or(
+                np.logical_and(self.geom1.on_boundary(x), ~self.geom2.inside(x)),
+                np.logical_and(self.geom2.on_boundary(x), ~self.geom1.inside(x)),
+            )
 
     def boundary_normal(self, x):
         return np.logical_and(self.geom1.on_boundary(x), ~self.geom2.inside(x))[
@@ -116,13 +126,22 @@ class CSGDifference(geometry.Geometry):
         self.geom2 = geom2
 
     def inside(self, x):
-        return np.logical_and(self.geom1.inside(x), ~self.geom2.inside(x))
+        if bkd.is_tensor(x):
+            return bkd.logical_and(self.geom1.inside(x), ~self.geom2.inside(x))
+        else:
+            return np.logical_and(self.geom1.inside(x), ~self.geom2.inside(x))
 
     def on_boundary(self, x):
-        return np.logical_or(
-            np.logical_and(self.geom1.on_boundary(x), ~self.geom2.inside(x)),
-            np.logical_and(self.geom1.inside(x), self.geom2.on_boundary(x)),
-        )
+        if bkd.is_tensor(x):
+            return bkd.logical_or(
+                bkd.logical_and(self.geom1.on_boundary(x), ~self.geom2.inside(x)),
+                bkd.logical_and(self.geom1.inside(x), self.geom2.on_boundary(x)),
+            )
+        else:
+            return np.logical_or(
+                np.logical_and(self.geom1.on_boundary(x), ~self.geom2.inside(x)),
+                np.logical_and(self.geom1.inside(x), self.geom2.on_boundary(x)),
+            )
 
     def boundary_normal(self, x):
         return np.logical_and(self.geom1.on_boundary(x), ~self.geom2.inside(x))[
@@ -205,13 +224,22 @@ class CSGIntersection(geometry.Geometry):
         self.geom2 = geom2
 
     def inside(self, x):
-        return np.logical_and(self.geom1.inside(x), self.geom2.inside(x))
+        if bkd.is_tensor(x):
+            return bkd.logical_and(self.geom1.inside(x), self.geom2.inside(x))
+        else:
+            return np.logical_and(self.geom1.inside(x), self.geom2.inside(x))
 
     def on_boundary(self, x):
-        return np.logical_or(
-            np.logical_and(self.geom1.on_boundary(x), self.geom2.inside(x)),
-            np.logical_and(self.geom1.inside(x), self.geom2.on_boundary(x)),
-        )
+        if bkd.is_tensor(x):
+            return bkd.logical_or(
+                bkd.logical_and(self.geom1.on_boundary(x), self.geom2.inside(x)),
+                bkd.logical_and(self.geom1.inside(x), self.geom2.on_boundary(x)),
+            )
+        else:
+            return np.logical_or(
+                np.logical_and(self.geom1.on_boundary(x), self.geom2.inside(x)),
+                np.logical_and(self.geom1.inside(x), self.geom2.on_boundary(x)),
+            )
 
     def boundary_normal(self, x):
         return np.logical_and(self.geom1.on_boundary(x), self.geom2.inside(x))[

@@ -2,6 +2,7 @@ import itertools
 
 import numpy as np
 
+from .. import backend as bkd
 from .geometry_1d import Interval
 from .geometry_2d import Rectangle
 from .geometry_3d import Cuboid
@@ -17,7 +18,10 @@ class TimeDomain(Interval):
         self.t1 = t1
 
     def on_initial(self, t):
-        return isclose(t, self.t0).flatten()
+        if bkd.is_tensor(t):
+            return bkd.isclose(t, bkd.as_tensor(self.t0, dtype=t.dtype)).flatten()
+        else:
+            return isclose(t, self.t0).flatten()
 
 
 class GeometryXTime:
